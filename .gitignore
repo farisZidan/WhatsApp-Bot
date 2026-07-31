@@ -4,6 +4,7 @@ auth_info
 # Database
 *.db
 database_mahasiswa.db
+tmp/message_cache.json
 
 # Node modules & Logs
 node_modules
