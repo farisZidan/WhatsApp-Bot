@@ -1,3 +1,5 @@
+// sticker/compressor.js
+
 const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
@@ -16,7 +18,7 @@ const COMPRESSION_PROFILES = [
 ];
 
 async function compressVideoToSticker(videoBuffer) {
-    const tmpDir = path.join(__dirname, '../../tmp');
+    const tmpDir = path.join(__dirname, '../tmp'); 
     if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
 
     const filename = crypto.randomBytes(6).toString('hex');
@@ -31,11 +33,6 @@ async function compressVideoToSticker(videoBuffer) {
             const profile = COMPRESSION_PROFILES[i];
             console.log(`[FFMPEG PRO] Coba Profil: ${profile.name} (FPS: ${profile.fps}, Q: ${profile.q})...`);
 
-            // 💎 JALUR PROFESIONAL:
-            // 1. -an: Buang audio total agar ukuran langsung ramping.
-            // 2. -pix_fmt yuva420p: Mempertahankan kanal transparan (alpha) sejak frame pertama.
-            // 3. color=0x00000000@0.0: Memastikan sisa ruang video landscape/portrait transparan murni.
-            // 4. -preset picture: Menjaga ketajaman warna detail setara foto.
             const webpCommand = `ffmpeg -i "${rawInputPath}" -an -vcodec libwebp -vf "fps=${profile.fps},scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:(ow-iw)/2:(oh-ih)/2:color=0x00000000@0.0" -lossless 0 -compression_level 6 -q:v ${profile.q} -loop 0 -preset picture -pix_fmt yuva420p -t 00:00:10 "${outputPath}" -y`;
 
             await execPromise(webpCommand);
@@ -50,7 +47,6 @@ async function compressVideoToSticker(videoBuffer) {
                 console.log(`[FFMPEG REJECT] Ukuran ${fileSizeKB} KB masih di atas limit, menyesuaikan...`);
             }
         }
-
     } catch (error) {
         console.error('[FFMPEG FATAL ERROR]', error.message);
         throw new Error('Gagal memproses video. Pastikan format video didukung.');
