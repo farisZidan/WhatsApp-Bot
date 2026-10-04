@@ -2,6 +2,8 @@ const { makeWASocket, useMultiFileAuthState } = require('@whiskeysockets/baileys
 const qrcode = require('qrcode-terminal');
 const normalizer = require('./src/core/normalizer');
 const router = require('./src/core/router');
+const scheduler = require('./src/core/scheduler');
+const { initElearningTasks } = require('./src/plugins/elearning/elearningScheduler');
 
 async function startBot() {
     const { state, saveCreds } = await useMultiFileAuthState('./auth_info');
@@ -35,6 +37,11 @@ async function startBot() {
             }
         } else if (connection === 'open') {
             console.log('✅ Bot berhasil terhubung ke WhatsApp!');
+
+            initElearningTasks(sock);
+            // initSimaTasks(sock); // Jika ada plugin lain, panggil di sini
+
+            scheduler.startAll(); // Mulai semua task yang sudah didaftarkan
         }
     });
 
